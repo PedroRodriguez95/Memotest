@@ -1,0 +1,287 @@
+import random
+import math
+import time
+
+class carta():                                         ##Creo una clase carta que tiene un bool para marcar visible/escondido, un valor para comparar y 4 "memorias" para recordar si un jugador ya levanto esa carta
+    escondido = True
+    valor = 0
+    memoria1 = -2
+    memoria2 = -2
+    memoria3 = -2
+    memoria4 = -2
+
+def resultado(jugadores,maxjug):                                  ##Muetra los resultados al final de la partida
+    print("Jugador 1:",jugadores[0])
+    print("Jugador 2:",jugadores[1])
+    if maxjug == 3:
+        print("Jugador 3:",jugadores[2])
+    if maxjug == 4:
+        print("Jugador 3:",jugadores[2])
+        print("Jugador 4:",jugadores[3])
+
+def completoCheck(cartas):                     ##Hace uso del bool dentro de la carta para verificar que el juego se termino (si todas las cartas son visibles)
+    completo = True
+    for i in cartas:
+        if i.escondido == True:
+            completo = False
+    return completo
+
+def memoriaCheck(carta,turnojug):                 ##Cuando un jugador hace un movimiento a este se le suma 1 a su memoria, se ultiliza el turno para saber a quien
+    if turnojug == 1:
+        carta.memoria1 +=1
+    if turnojug == 2:
+        carta.memoria2 +=1
+    if turnojug == 3:
+        carta.memoria3 +=1
+    if turnojug == 4:
+        carta.memoria4 +=1
+
+def repetidoCheck(carta, turnojug):                      ## chequeo para saber si dar puntos adicionales,
+    norepetido = True
+    if turnojug == 1:
+        if carta.memoria1 >= 0:
+            norepetido = False
+    if turnojug == 2:
+        if carta.memoria2 >= 0:
+            norepetido = False
+    if turnojug == 3:
+        if carta.memoria3 >= 0:
+            norepetido = False
+    if turnojug == 4:
+        if carta.memoria4 >= 0:
+            norepetido = False
+    return norepetido
+            
+
+    
+
+def tablaJugadores(maxjug,jugadores,dif):                                     ##Pequeña tabla de jugadores y sus puntajes  para mostrar en el tablero
+    print("Puntaje: ",end="")
+    print("[ Jugador 1 =",jugadores[0],"] ",end="")
+    print("[ Jugador 2 =",jugadores[1],"] ",end="")
+    if maxjug == 3:
+        print("[ Jugador 3 =",jugadores[2],"] ",end="")
+    if maxjug ==4:
+        print("[ Jugador 3 =",jugadores[2],"] ",end="")
+        print("[ Jugador 4 =",jugadores[3],"] ",end="")
+    print("")
+    print("-" * 107)
+    
+def elejirDificultad():
+    dif = 0
+    while True:
+        print("1)Facil")
+        print("2)Medio")
+        print("3)Dificil")
+        while True:
+            try:
+                eleccion = int(input("Ingrese dificultad: "))                        ##Menu de eleccion de dificultad
+                break
+            except:
+                print("Error, solo se permite el ingreso de numeros")
+        if eleccion >=1 and eleccion <=3:
+            if eleccion == 1:
+                dif = 8
+            if eleccion == 2:
+                dif = 18               
+            if eleccion == 3:
+                dif = 32
+            return dif
+            break
+        else:
+            print("Error, ingrese el numero correspondiente de eleccion")
+            
+def iniciarJuego():                                      ##Se toma el tamaño de el tablero y se crea una lista que contiene la cantidad correspondiente de cartas para llenarlo, dispuestas ya con su par.
+    dif = elejirDificultad()                              ## Se transforma la eleccion de dificultad para uso subsecuente
+    for i in range (dif):
+        x = carta()
+        x.valor = i
+        cartas.append(x)
+        x = carta()
+        x.valor = i
+        cartas.append(x)
+    dif = (dif/2) * (dif/2)
+    return dif
+
+def tablero(a,turnojug,maxjug,jugadores):                     ##Simula una interfaz a partir del mazo creado (y mesclado previamente). a es mi mazo.
+    x = int(math.sqrt(len(a)))
+    if len(a) == 64:
+        print("-" * 65,"/","-" * 65)
+    if len(a) == 16:
+        print("-" * 45,"/","-" * 45)
+    if len(a) == 36:
+        print("-" * 55,"/","-" * 55)
+    print("Tablero:  [ X  ]  <-Cartas ocultas"," " * len(a),"Panel de seleccion: (#) <--botones")            ##Unas cabezeras
+    if len(a) == 64:
+        print("-" * 65,"/","-" * 65)
+    if len(a) == 16:
+        print("-" * 45,"/","-" * 45)
+    if len(a) == 36:
+        print("-" * 55,"/","-" * 55)
+    s= 0
+    for i in range(x):
+        aux = s
+        for i in range(x):
+            if a[s].escondido == False:
+                if a[s].valor > 10:
+                    print("[",a[s].valor,"]  ",end="")                ##Uso el bool dentro de la carta para que se muestren como [ X  ], y mustro su valor si es necesario
+                else:
+                    print("[",a[s].valor," ]  ",end="")
+            else:
+                print("[ X  ]  ",end="")             
+            s +=1
+        s = aux
+        print (" " * 25,end="")
+        for i in range(x):
+            if s >= 10:
+                print("(",s,")  ",end="")                                   ## se copia una replica de el tablero con el numero de indice del array de cada carta oculta 
+            else:
+                print("(",s, " )  ",end="")
+            s +=1
+        print("")
+        print("")
+    if len(a) == 64:
+        print("-" * 107)
+        print("-" * 50,"/ turno del jugador =",turnojug,"/","-" * 65,)                        ##Un cartel que avisa el turno, se centra segun el tamaño
+        print("-" * 107)
+        tablaJugadores(maxjug,jugadores,len(a))
+    if len(a) == 16:
+        print("-" * 107)
+        print("-" * 30,"/ turno del jugador  =",turnojug,"/","-" * 45)
+        print("-" * 107)
+        tablaJugadores(maxjug,jugadores,len(a))
+    if len(a) == 36:
+        print("-" * 107)
+        print("-" * 40,"/ turno del jugador =",turnojug,"/","-" * 55)
+        print("-" * 107)
+        tablaJugadores(maxjug,jugadores,len(a))
+
+def MemoTest():                                                    ##Cuerpo principal del programa
+    maxjug = 0
+    while True:
+        while True:
+            print("1) 2")
+            print("2) 3")
+            print("3) 4")
+            print("Ingrese cantidad de jugadores")                                 ##Se selecciona la cantidad maxima de jugadores y se guarda en la variable maxjug
+            try:
+                eleccion = int(input(":"))
+                break
+            except:
+                print("Error, solo se permite el ingreso de numeros")
+        if eleccion >=1 and eleccion <=3:
+            if eleccion == 1:
+                maxjug  =2
+            if eleccion == 2:
+                maxjug = 3
+            if eleccion == 3:
+                maxjug = 4
+            break
+        else:
+            print("Error, ingrese un numero dentro del rango de opciones")
+    turnojug = 1                        ##la variable turnojug muestra quien esta jugando
+    jugadores = [0,0,0,0]                     ## Lista donde guardo los puntos de cada jugador
+    auxloc1 = 0
+    auxloc2 = 0                              ##Creo variables auxiliares para guardar valor e indice en la lista de 2 cartas
+    auxnum1 = 0             
+    auxnum2 = -1
+    dif = iniciarJuego()                     ##Creo las cartas/elijo dificultad
+    random.shuffle(cartas)              ## Se mezclan las cartas
+    jugando = True
+    while jugando:
+        while True:
+            while True:
+                print ("\n" * 100)
+                tablero(cartas,turnojug,maxjug,jugadores)                            ##Muestro un tablero que se actualiza a medida que transcure el juego
+                try:
+                    eleccion = int(input("Ingrese carta a dar vuelta: "))                ##Se elije la primera carta a dar vuelta
+                    break
+                except:
+                    print("Error, solo se permite el ingreso de numeros")
+            if eleccion >=0 and eleccion <=(dif-1):
+                if cartas[eleccion].escondido == False:
+                    print("Error, carta ya seleccionada")
+                else:
+                    memoriaCheck(cartas[eleccion],turnojug)                         ##Sumo 1 a la memoria correspondiente, dependiendo de que turno es
+                    cartas[eleccion].escondido = False                                   ##carta se hace visible 
+                    auxloc1 = eleccion
+                    auxnum1 = cartas[eleccion].valor                                    ##Guardo numero de indice y valor de la carta seleccionada
+                    print ("\n" * 100)
+                    tablero(cartas,turnojug,maxjug,jugadores)                     ##Muestro el nuevo tablero
+                    break
+        while True:
+            while True:
+                try:
+                    eleccion = int(input("Ingrese carta a dar vuelta"))
+                    break
+                except:
+                    print("Error, solo se permite el ingreso de numeros")
+            if eleccion >=0 and eleccion <=(dif-1):
+                if cartas[eleccion].escondido == False:
+                    print("Error, carta ya seleccionada")
+                else:
+                    memoriaCheck(cartas[eleccion],turnojug)                           ##Se repite la operacion anterior con una segunda carta
+                    cartas[eleccion].escondido = False
+                    auxloc2 = eleccion
+                    auxnum2 = cartas[eleccion].valor
+                    print ("\n" * 100)
+                    tablero(cartas,turnojug,maxjug,jugadores)
+                    print("analizando.")
+                    time.sleep(1)
+                    print("analizando..")
+                    time.sleep(1)
+                    print("analizando...")
+                    time.sleep(1)
+                    break
+        if auxnum1 == auxnum2:                                                                 ##Comparo los valores auxiliares para saber si ambas cartas son iguales
+            print("Correcto")
+            if repetidoCheck(cartas[auxloc1],turnojug) and repetidoCheck(cartas[auxloc1],turnojug):                                     ##utilizo repetidoCheck para saber si tengo que dar puntos extra
+                jugadores[turnojug-1] = jugadores[turnojug-1]+ 3
+            else:
+                jugadores[turnojug-1] +=1                                                                     ##Sino se da 1 punto
+            time.sleep(1)
+        else:
+            print("Incorrecto")                                         
+            if turnojug ==maxjug:                                 ##En caso de ser incorrecto se compara el turno actual con la cantidad de jugadores para saber si te tiene que reinicar la vuelta
+                turnojug =0
+            turnojug +=1                                             ##Se pasa de turno
+            time.sleep(1)
+            cartas[auxloc1].escondido = True                  ##Se esconden las cartas 
+            cartas[auxloc2].escondido = True
+        auxnum1 = 0
+        auxnum2 = 0
+        auxloc1 = 0                                                 ##Se reinician las variables auxiliares
+        auxloc2 = 0
+        if completoCheck(cartas):                               ##Si todas las cartas son visibles el juego termina y se muestran los puntajes de todos los jugadores
+            print("###################")
+            print("#Memotest completado#")
+            print("###################")
+            print("puntaje: ")
+            resultado(jugadores,maxjug)
+            jugando = False
+            time.sleep(5)
+
+while True:                                                  ##menu inicial
+    while True:
+        print ("\n" * 100)
+        cartas = []
+        print("#########################")
+        print("# M e m o t e s t _ P e d r o_ V1 #")
+        print("#########################")
+        print("# 1)Nuevo Juego                       #")           
+        print("# 2)Salir                                    #")
+        print("#########################")
+        try:
+            eleccion = int(input(":"))
+            break
+        except:
+            print("Error, solo se permite el ingreso de numeros")
+    if eleccion == 1 or eleccion == 2:
+        if eleccion == 1:
+            print ("\n" * 100)
+            MemoTest()
+        if eleccion == 2:
+            print("Chau")
+            break
+    else:
+        print("Error, ingrese un numero dentro del rango de opciones")
